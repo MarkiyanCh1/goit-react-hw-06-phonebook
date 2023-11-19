@@ -1,7 +1,12 @@
 import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setFilter, selectFilter } from 'redux/contactsSlice';
 import { FilterWrapper, InputFilter } from './Filter.styles';
 
-const Filter = ({ filter, onChangeFilter }) => {
+const Filter = () => {
+  const dispatch = useDispatch();
+  const filter = useSelector(selectFilter);
+
   return (
     <FilterWrapper>
       <h3>Find contacts by name</h3>
@@ -9,7 +14,7 @@ const Filter = ({ filter, onChangeFilter }) => {
         type="text"
         value={filter}
         onChange={e => {
-          onChangeFilter(e.target.value);
+          dispatch(setFilter(e.target.value));
         }}
         placeholder="Enter name..."
       />

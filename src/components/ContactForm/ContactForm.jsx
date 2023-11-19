@@ -2,8 +2,10 @@ import React from 'react';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { ErrMessage, StyledForm, Input } from './ContactForm.styles';
-import { ButtonClose } from 'components/ContactCard/ContactCard.styles';
+import { ButtonClose } from '../ContactCard/ContactCard.styles';
 import { nanoid } from 'nanoid';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact, selectContacts } from 'redux/contactsSlice';
 
 const contactSchema = Yup.object().shape({
   name: Yup.string()
@@ -15,14 +17,33 @@ const contactSchema = Yup.object().shape({
     .max(50, 'Too Long!')
     .required('This field is required!'),
   number: Yup.string()
-  .matches(
-    /^\+?\d{1,4}?[ .\\-\s]?\(?\d{1,3}?\)?[ .\\-\s]?\d{1,4}[ .\\-\s]?\d{1,4}[ .\\-\s]?\d{1,9}$/,
-    'Invalid number format'
-  )
-  .min(8, 'Too Short!').required('This field is required!'),
+    .matches(
+      /^\+?\d{1,4}?[ .\\-\s]?\(?\d{1,3}?\)?[ .\\-\s]?\d{1,4}[ .\\-\s]?\d{1,4}[ .\\-\s]?\d{1,9}$/,
+      'Invalid number format'
+    )
+    .min(8, 'Too Short!')
+    .required('This field is required!'),
 });
 
-const ContactForm = ({ onAdd }) => {
+const ContactForm = () => {
+  const contacts = useSelector(selectContacts);
+  const dispatch = useDispatch();
+
+  const addNewContact = newContact => {
+    const hasContact = contacts.some(
+      ({ name }) => name.toLowerCase() === newContact.name.toLowerCase()
+    );
+
+    if (hasContact) {
+      alert(`${newContact.name} is already in contacts`);
+      return;
+    }
+    const finalContact = {
+      ...newContact,
+    };
+    dispatch(addContact(finalContact));
+  };
+
   return (
     <Formik
       initialValues={{
@@ -32,7 +53,7 @@ const ContactForm = ({ onAdd }) => {
       }}
       validationSchema={contactSchema}
       onSubmit={(values, actions, id) => {
-        onAdd(values, id);
+        addNewContact(values, id)
         actions.resetForm({
           values: {
             name: '',

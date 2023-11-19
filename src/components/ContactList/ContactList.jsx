@@ -1,13 +1,29 @@
 import React from 'react';
 import { List, ContactItem } from './ContactList.styles';
 import ContactCard from '../ContactCard/ContactCard';
+import { useSelector } from 'react-redux';
+import { selectContacts, selectFilter } from 'redux/contactsSlice';
 
-const ContactList = ({ items, onDelete }) => {
+const ContactList = () => {
+  const contacts = useSelector(selectContacts);
+  const filter = useSelector(selectFilter);
+
+  const showContacts = () => {
+    return contacts.filter(item => {
+      if (filter.trim() === '') {
+        return contacts;
+      }
+      return item.name.toLowerCase().includes(filter.toLowerCase());
+    });
+  };
+
+  const allContacts = showContacts();
+
   return (
     <List>
-      {items.map(item => (
+      {allContacts.map(item => (
         <ContactItem key={item.id}>
-          <ContactCard contact={item} onDelete={onDelete} />
+          <ContactCard contact={item} />
         </ContactItem>
       ))}
     </List>
